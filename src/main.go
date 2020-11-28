@@ -41,12 +41,14 @@ retry:
 		var response = scanner.Text()
 		if !strings.Contains(response,"200") {
 			if strings.Contains(response,"501") {
+				proxyConn.Close()
 				err:= exec.Command("sh", loginScript).Run()
 				if err != nil{
 					fmt.Println("error: exec login-script")
+					counter = 5
 				} else {
 					counter++
-					if counter < 3{
+					if counter < 2{
 						goto retry
 					}
 				}
