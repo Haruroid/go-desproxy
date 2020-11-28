@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"os/exec"
 )
 
 var (
@@ -18,6 +19,7 @@ var (
 	proxyHost          = ""
 	remoteHost         = ""
 	proxyAuthorization = ""
+	loginScript = "true"
 )
 
 func HandleRequest(clientConn net.Conn) {
@@ -36,6 +38,12 @@ func HandleRequest(clientConn net.Conn) {
 		scanner.Scan()
 		var response = scanner.Text()
 		if !strings.Contains(response,"200") {
+			if strings.Contains(response,"501") {
+				err:= exec.Command("sh", loginScript).Start()
+				if err != nil{
+					fmt.Println("error: exec login-script")
+				}
+			}
 			fmt.Println("err: "+response)
 			proxyConn.Close()
 			clientConn.Close()
@@ -56,10 +64,12 @@ func main() {
 	_localport := flag.Int("p", 8080, "local port")
 	_remoteHost := flag.String("r", "", "remote host:port")
 	_proxyHost := flag.String("x", "10.1.16.8:8080", "Proxy:port")
+	_loginScript := flag.String("l","true","/usr/bin/login.sh")
 	flag.Parse()
 	localport = *_localport
 	remoteHost = *_remoteHost
 	proxyHost = *_proxyHost
+	loginScript = *_loginScript
 
 	proxyAuthorization = "Basic " + base64.StdEncoding.EncodeToString([]byte(*_proxyUser))
 	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", localport))
