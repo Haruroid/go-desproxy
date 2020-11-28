@@ -23,6 +23,8 @@ var (
 )
 
 func HandleRequest(clientConn net.Conn) {
+	counter := 0
+retry:
 	timeout,_:= time.ParseDuration("1m");
 	if proxyConn, err := net.DialTimeout("tcp", proxyHost,timeout); err != nil {
 		log.Fatal(err)
@@ -39,9 +41,14 @@ func HandleRequest(clientConn net.Conn) {
 		var response = scanner.Text()
 		if !strings.Contains(response,"200") {
 			if strings.Contains(response,"501") {
-				err:= exec.Command("sh", loginScript).Start()
+				err:= exec.Command("sh", loginScript).Run()
 				if err != nil{
 					fmt.Println("error: exec login-script")
+				} else {
+					counter++
+					if counter < 3{
+						goto retry
+					}
 				}
 			}
 			fmt.Println("err: "+response)
