@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 var (
@@ -20,7 +21,8 @@ var (
 )
 
 func HandleRequest(clientConn net.Conn) {
-	if proxyConn, err := net.Dial("tcp", proxyHost); err != nil {
+	timeout,_:= time.ParseDuration("1m");
+	if proxyConn, err := net.DialTimeout("tcp", proxyHost,timeout); err != nil {
 		log.Fatal(err)
 	} else {
 		var proxyauth = ""
