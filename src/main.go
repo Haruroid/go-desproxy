@@ -8,8 +8,6 @@ import (
 	"io"
 	"log"
 	"net"
-	"net/http"
-	"net/url"
 	"os"
 	"strings"
 )
@@ -62,12 +60,6 @@ func main() {
 	proxyHost = *_proxyHost
 
 	proxyAuthorization = "Basic " + base64.StdEncoding.EncodeToString([]byte(*_proxyUser))
-	proxyUrlString := fmt.Sprintf("http://%s@%s", strings.Replace(url.QueryEscape(*_proxyUser), "%3A", ":", 1), proxyHost)
-	proxyUrl, err := url.Parse(proxyUrlString)
-	if err != nil {
-		log.Fatal(err)
-	}
-	http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
 	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", localport))
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
