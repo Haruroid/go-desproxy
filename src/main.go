@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"os"
 	"strings"
@@ -27,7 +26,7 @@ func HandleRequest(clientConn net.Conn) {
 retry:
 	timeout,_:= time.ParseDuration("1m");
 	if proxyConn, err := net.DialTimeout("tcp", proxyHost,timeout); err != nil {
-		log.Fatal(err)
+		fmt.Println("err: dial "+ proxyHost)
 	} else {
 		var proxyauth = ""
 		if !strings.Contains(remoteHost,"maizuru") {
